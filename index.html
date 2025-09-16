@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Barcode Scanner</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0; padding: 20px;
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2.5rem; border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            width: 100%; max-width: 550px;
+        }
+        #history {
+            width: 100%; max-width: 550px;
+            margin: 2rem auto 0 auto;
+            background: rgba(255,255,255,0.92);
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.07);
+            padding: 1.5rem 1.2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            bottom: 0;
+            
+        }
+        #history h3 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+            color: #764ba2;
+        }
+        #historyList {
+            width: 100%;
+            max-height: 260px;
+            overflow-y: auto;
+            padding: 0;
+        }
+        #historyList li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 1rem;
+            text-align: left;
+        }
+        #historyList li:last-child {
+            border-bottom: none;
+        }
+        h2 {
+            text-align: center; color: #2c3e50;
+            font-size: 1.8rem; margin-bottom: 2rem;
+        }
+        .input-group {
+            position: relative; margin-bottom: 1.5rem;
+        }
+        .input-group label {
+            position: absolute; top: -8px; left: 15px;
+            background: white; padding: 0 5px;
+            font-size: 0.85rem; color: #666;
+        }
+        input[type="text"] {
+            width: 100%; padding: 15px 50px 15px 15px;
+            font-size: 1rem; border: 2px solid #e1e8ed;
+            border-radius: 10px;
+        }
+        .status-indicator {
+            position: absolute; right: 50px; top: 50%;
+            transform: translateY(-50%);
+            width: 8px; height: 8px;
+            border-radius: 50%; background: #ccc;
+        }
+        .status-indicator.active {
+            background: #2ecc71;
+            box-shadow: 0 0 10px rgba(46, 204, 113, 0.5);
+        }
+        #result {
+            margin: 2rem 0; padding: 1.5rem;
+            border-radius: 15px; text-align: center;
+            font-size: 1.3rem; font-weight: 600;
+            min-height: 70px; display: flex;
+            align-items: center; justify-content: center;
+        }
+        .pass {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+        }
+        .fail {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+        }
+        .button-group {
+            display: flex; gap: 10px; flex-wrap: wrap;
+        }
+        button {
+            flex: 1; padding: 12px 20px;
+            font-size: 1rem; border: none;
+            border-radius: 10px; cursor: pointer;
+            font-weight: 600; text-transform: uppercase;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        .btn-secondary {
+            background: #f8f9fa; color: #495057;
+            border: 2px solid #e9ecef;
+        }
+        .stats {
+            margin-top: 2rem;
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 15px; text-align: center;
+        }
+        .stat-item {
+            background: #f8f9fa; padding: 15px;
+            border-radius: 10px; border: 1px solid #e9ecef;
+        }
+        .stat-number {
+            font-size: 1.5rem; font-weight: bold;
+            color: #2c3e50;
+        }
+        .stat-label {
+            font-size: 0.85rem; color: #6c757d; margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+<div class="main-center" style="display:flex;flex-direction:column;align-items:center;width:100%"> 
+<div class="container">
+    <h2>🔍 Barcode Scanner Pro</h2>
+    <div class="input-group">
+        <label>Barcode 1</label>
+        <input type="text" id="barcode1" placeholder="Quét mã barcode thứ nhất...">
+        <div class="status-indicator" id="status1"></div>
+    </div>
+    <div class="input-group">
+        <label>Barcode 2</label>
+        <input type="text" id="barcode2" placeholder="Quét mã barcode thứ hai...">
+        <div class="status-indicator" id="status2"></div>
+    </div>
+    <div class="input-group">
+        <label>Số lượng</label>
+        <input type="text" id="quantity" placeholder="Quét số lượng...">
+        <div class="status-indicator" id="status3"></div>
+    </div>
+    <div id="result">Nhập 2 mã barcode để so sánh</div>
+    <div class="button-group">
+        <button class="btn-secondary" onclick="resetForm()">🔄 Reset</button>
+        <button class="btn-primary" onclick="exportToCSV()">📥 Export Excel</button>
+        <button class="btn-secondary" onclick="resetAll()">🗑️ Reset All</button>
+    </div>
+    <div class="stats">
+        <div class="stat-item">
+            <div class="stat-number" id="totalScans">0</div>
+            <div class="stat-label">Tổng quét</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number" id="passCount">0</div>
+            <div class="stat-label">Pass</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number" id="failCount">0</div>
+            <div class="stat-label">Fail</div>
+        </div>
+    </div>
+</div>
+
+    <!-- Lịch sử quét -->
+    <div id="history">
+        <h3>Lịch sử quét</h3>
+        <ul id="historyList"></ul>
+    </div>
+</div>
+
+    <!-- Thư viện xuất Excel chuẩn -->
+    <script src="xlsx.full.min.js"></script>
+
+<script>
+    let stats = { total: 0, pass: 0, fail: 0 };
+    let historyData = [];
+    let isProcessing = false; // Cờ để ngăn xử lý nhiều lần
+
+    function extractQuantity(str) {
+        // Tìm số sau QTY: hoặc số cuối cùng trong chuỗi
+        const qtyMatch = str.match(/QTY[:\- ]?(\d+)/i);
+        if (qtyMatch) return qtyMatch[1];
+        const numMatch = str.match(/(\d+)(?!.*\d)/);
+        return numMatch ? numMatch[1] : '';
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const stored = localStorage.getItem('barcode_history');
+        if (stored) {
+            historyData = JSON.parse(stored);
+            stats = { total: 0, pass: 0, fail: 0 };
+            historyData.forEach(entry => {
+                stats.total++;
+                if (entry.result === 'PASS') {
+                    stats.pass++;
+                } else {
+                    stats.fail++;
+                }
+            });
+            document.getElementById('totalScans').textContent = stats.total;
+            document.getElementById('passCount').textContent = stats.pass;
+            document.getElementById('failCount').textContent = stats.fail;
+                renderHistory();
+        }
+
+            const b1 = document.getElementById('barcode1');
+            const b2 = document.getElementById('barcode2');
+            const qty = document.getElementById('quantity');
+            setTimeout(() => b1.focus(), 100);
+
+        b1.addEventListener('input', () => {
+            updateStatus('status1', b1.value.length > 5);
+            if (b1.value.length > 8) setTimeout(() => b2.focus(), 300);
+        });
+
+        b2.addEventListener('input', () => {
+            updateStatus('status2', b2.value.length > 5);
+            if (b2.value.length > 8) setTimeout(() => qty.focus(), 300);
+        });
+
+        qty.addEventListener('input', () => {
+            // Tự động lấy số lượng đúng khi nhập
+            const extracted = extractQuantity(qty.value);
+            if (extracted !== qty.value) qty.value = extracted;
+            updateStatus('status3', extracted.length > 0 && !isNaN(extracted));
+        });
+
+        qty.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !isProcessing) {
+                const b1Value = b1.value.trim();
+                const b2Value = b2.value.trim();
+                const qtyValue = extractQuantity(qty.value.trim());
+                if (b1Value.length > 5 && b2Value.length > 5 && qtyValue.length > 0 && !isNaN(qtyValue)) {
+                    isProcessing = true;
+                    compareBarcodes(b1Value, b2Value, qtyValue);
+                }
+            }
+        });
+    });
+
+    function updateStatus(id, active) {
+        const el = document.getElementById(id);
+        el.classList.toggle('active', active);
+    }
+
+    function compareBarcodes(b1, b2, qty) {
+        const result = document.getElementById('result');
+        let status, className;
+        if (b1.includes(b2) || b2.includes(b1)) {
+            status = 'PASS';
+            className = 'pass';
+        } else {
+            status = 'FAIL';
+            className = 'fail';
+        }
+        result.textContent = `${status}`;
+        result.className = className;
+
+        stats.total++;
+        if (status === 'PASS') {
+            stats.pass++;
+        } else {
+            stats.fail++;
+        }
+        document.getElementById('totalScans').textContent = stats.total;
+        document.getElementById('passCount').textContent = stats.pass;
+        document.getElementById('failCount').textContent = stats.fail;
+
+        addToHistory(b1, b2, qty, status);
+
+        setTimeout(() => {
+            resetForm();
+            isProcessing = false;
+        }, 7000);
+    }
+
+    function getDirectMatch(str1, str2) {
+        const len = Math.min(str1.length, str2.length);
+        let match = 0;
+        for (let i = 0; i < len; i++) {
+            if (str1[i] === str2[i]) match++;
+        }
+        return (match / Math.max(str1.length, str2.length)) * 100;
+    }
+
+    function resetForm() {
+        document.getElementById('barcode1').value = '';
+        document.getElementById('barcode2').value = '';
+        document.getElementById('quantity').value = '';
+        document.getElementById('status1').classList.remove('active');
+        document.getElementById('status2').classList.remove('active');
+        document.getElementById('status3').classList.remove('active');
+        const result = document.getElementById('result');
+        result.textContent = 'Nhập 2 mã barcode để so sánh';
+        result.className = '';
+        document.getElementById('barcode1').focus();
+    }
+
+    function addToHistory(b1, b2, qty, status) {
+        const now = new Date().toLocaleString('vi-VN');
+        const entry = {
+            time: now,
+            barcode1: b1,
+            barcode2: b2,
+            quantity: qty,
+            result: status
+        };
+        historyData.push(entry);
+        localStorage.setItem('barcode_history', JSON.stringify(historyData));
+        localStorage.setItem('barcode_stats', JSON.stringify(stats));
+        renderHistory();
+
+        // Gửi dữ liệu về backend Laravel
+        fetch('/api/barcode-history', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                barcode1: b1,
+                barcode2: b2,
+                quantity: qty,
+                result: status,
+                time: new Date().toISOString()
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            // Có thể xử lý thêm nếu cần
+            // console.log('Đã lưu vào database:', data);
+        })
+        .catch(err => {
+            console.error('Lỗi gửi dữ liệu về backend:', err);
+        });
+    }
+
+    function renderHistory() {
+        const list = document.getElementById('historyList');
+        list.innerHTML = '';
+        if (historyData.length === 0) {
+            list.innerHTML = '<li style="text-align:center;color:#aaa">Chưa có lịch sử quét.</li>';
+            return;
+        }
+        [...historyData].reverse().forEach(item => {
+            const li = document.createElement('li');
+            li.style.padding = '8px 0';
+            li.style.borderBottom = '1px solid #eee';
+            li.innerHTML = `<span style='color:#888;font-size:0.9em'>${item.time}</span> | <b>${item.barcode1}</b> & <b>${item.barcode2}</b> | <span style='color:#2980b9'>Số lượng: ${item.quantity}</span> → <span style='color:${item.result==='PASS'?'#2ecc71':'#e74c3c'};font-weight:bold'>${item.result}</span>`;
+            list.appendChild(li);
+        });
+    }
+
+
+    function exportToCSV() {
+        if (historyData.length === 0) {
+            alert("Chưa có dữ liệu để xuất.");
+            return;
+        }
+        // Tạo dữ liệu cho sheet
+        const sheetData = [
+            ["Thời gian", "Barcode 1", "Barcode 2", "Số lượng", "Kết quả"]
+        ];
+        historyData.forEach(row => {
+            sheetData.push([
+                row.time,
+                row.barcode1,
+                row.barcode2,
+                row.quantity,
+                row.result
+            ]);
+        });
+        // Tạo workbook và worksheet
+        const ws = XLSX.utils.aoa_to_sheet(sheetData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "BarcodeHistory");
+        // Xuất file Excel
+        XLSX.writeFile(wb, "barcode_history.xlsx", { bookType: "xlsx", type: "binary" });
+    }
+
+    function resetAll() {
+        localStorage.removeItem('barcode_history');
+        localStorage.removeItem('barcode_stats');
+        historyData = [];
+        stats = { total: 0, pass: 0, fail: 0 };
+        document.getElementById('totalScans').textContent = stats.total;
+        document.getElementById('passCount').textContent = stats.pass;
+        document.getElementById('failCount').textContent = stats.fail;
+        resetForm();
+            renderHistory();
+    }
+</script>
+</body>
+</html>

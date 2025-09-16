@@ -1,3 +1,14 @@
+    @if (session('scan_result'))
+        <div id="scanResultAlert" style="position:fixed; top:30px; right:30px; z-index:9999; min-width:220px; font-size:4rem; font-weight:900; letter-spacing:6px; text-align:center; box-shadow:0 2px 16px #0003; border:3px solid #fff; color:#fff; background:@if(session('scan_result')==='PASS') #218838 @else #c82333 @endif;">
+            {{ session('scan_result') }}
+        </div>
+        <script>
+        setTimeout(function() {
+            var el = document.getElementById('scanResultAlert');
+            if (el) el.style.display = 'none';
+        }, 2000);
+        </script>
+    @endif
 @extends('layouts.app')
 
 @section('content')
@@ -29,7 +40,7 @@
             </div>
         </div>
         <div class="d-flex justify-content-end">
-            <button type="submit" class="btn btn-primary" style="display:none">Quét & Lưu</button>
+            <button id="saveBtn" type="submit" class="btn btn-primary" style="display:none">Quét & Lưu</button>
         </div>
     </form>
 
@@ -55,6 +66,7 @@
         const b2 = document.getElementById('barcode2');
         const qty = document.getElementById('quantity');
         const form = document.getElementById('barcodeForm');
+        const saveBtn = document.getElementById('saveBtn');
 
         setTimeout(() => b1.focus(), 100);
 
@@ -64,12 +76,42 @@
         b2.addEventListener('input', () => {
             if (b2.value.length > 8) setTimeout(() => qty.focus(), 300);
         });
-        qty.addEventListener('input', () => {
-            // Tự động lấy số lượng đúng khi nhập
+
+        let lastInputTime = 0;
+        let inputTimer = null;
+
+
+        qty.addEventListener('input', (e) => {
+            const now = Date.now();
             const extracted = qty.value.match(/QTY[:\- ]?(\d+)/i)?.[1] || qty.value.match(/(\d+)(?!.*\d)/)?.[1] || '';
             if (extracted !== qty.value) qty.value = extracted;
-            if (b1.value.length > 0 && b2.value.length > 0 && extracted.length > 0 && !isNaN(extracted)) {
-                form.submit();
+
+            // Chỉ tự động submit khi số lượng có từ 2 ký tự trở lên và nhập nhanh
+            if (extracted.length >= 10 && lastInputTime && (now - lastInputTime < 300)) {
+                if (b1.value.length > 0 && b2.value.length > 0 && !isNaN(extracted)) {
+                    saveBtn.style.display = 'none';
+                    form.submit();
+                }
+            } else {
+                // Nhập tay hoặc chỉ 1 ký tự: luôn hiện nút Lưu
+                saveBtn.style.display = 'inline-block';
+            }
+            lastInputTime = now;
+
+            // Nếu người dùng dừng nhập 1s, vẫn hiện nút Lưu
+            clearTimeout(inputTimer);
+            inputTimer = setTimeout(() => {
+                saveBtn.style.display = 'inline-block';
+            }, 1000);
+        });
+
+        // Cho phép nhấn Enter ở ô số lượng để submit khi nhập tay
+        qty.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                if (b1.value.length > 0 && b2.value.length > 0 && qty.value.length > 0) {
+                    form.submit();
+                }
             }
         });
     });

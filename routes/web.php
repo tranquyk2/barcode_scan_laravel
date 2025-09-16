@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BarcodeHistoryController;
 use Illuminate\Support\Facades\Auth;
 
+
 Route::middleware(['auth'])->group(function () {
     Route::get('/barcode', function() {
         $histories = \App\Models\BarcodeHistory::where('user_id', auth()->id())->orderByDesc('id')->get();
@@ -11,6 +12,11 @@ Route::middleware(['auth'])->group(function () {
     })->name('barcode.index');
     Route::post('/barcode', [BarcodeHistoryController::class, 'store'])->name('barcode.store');
     Route::get('/barcode/export', [BarcodeHistoryController::class, 'export'])->name('barcode.export');
+        // Route trang thống kê barcode (đã xóa)
+        // Route::get('/statistics', [BarcodeHistoryController::class, 'statistics'])->name('statistics');
+    Route::get('/test-ok', function () {
+        return 'Laravel đã chạy OK';
+    });
 });
 
 

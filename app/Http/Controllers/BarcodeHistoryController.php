@@ -78,7 +78,7 @@ class BarcodeHistoryController extends Controller
                 'user_id' => auth()->id(),
                 'time' => now(),
             ]);
-            return redirect()->route('barcode.index');
+            return redirect()->route('barcode.index')->with('scan_result', $result);
         }
     }
 }
