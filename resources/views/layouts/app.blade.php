@@ -36,6 +36,14 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('barcode.index') }}">Quét barcode</a>
                         </li>
+                        @if(Auth::user() && Auth::user()->role === 'admin')
+                        <li class="nav-item">
+                            <a class="nav-link text-danger fw-bold" href="{{ route('admin.index') }}">Admin</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('admin.statistics') }}">Thống kê</a>
+                        </li>
+                        @endif
                         @endauth
                     </ul>
 

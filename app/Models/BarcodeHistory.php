@@ -10,7 +10,7 @@ class BarcodeHistory extends Model
     use HasFactory;
 
     protected $fillable = [
-        'barcode1', 'barcode2', 'quantity', 'result', 'time', 'user_id'
+        'barcode1', 'barcode2', 'quantity', 'result', 'user_id', 'time', 'created_at'
     ];
 
     public function user()

@@ -44,22 +44,6 @@
         </div>
     </form>
 
-    <!-- Form xuất Excel -->
-    <form method="GET" action="{{ route('barcode.export') }}" class="mb-4 card p-3 shadow-sm">
-        <div class="row align-items-end">
-            <div class="col-md-4">
-                <label for="date" class="form-label">Chọn ngày</label>
-                <input type="date" class="form-control" id="date" name="date">
-            </div>
-            <div class="col-md-4">
-                <label for="month" class="form-label">Chọn tháng</label>
-                <input type="month" class="form-control" id="month" name="month">
-            </div>
-            <div class="col-md-4 d-flex justify-content-end">
-                <button type="submit" class="btn btn-success">Xuất Excel</button>
-            </div>
-        </div>
-    </form>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         const b1 = document.getElementById('barcode1');
