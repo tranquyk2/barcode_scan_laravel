@@ -55,9 +55,11 @@ class BarcodeHistoryController extends Controller
             $validated = $request->validate([
                 'barcode1' => 'required|string',
                 'barcode2' => 'required|string',
-                'quantity' => 'required|integer',
+                'quantity' => 'required|integer|max:99999', // Giới hạn tối đa 5 chữ số
                 'result' => 'required|string',
                 'time' => 'nullable|date',
+            ], [
+                'quantity.max' => 'Số lượng không được lớn hơn :max.',
             ]);
             $validated['user_id'] = $request->user()->id;
             $history = BarcodeHistory::create($validated);
@@ -67,7 +69,9 @@ class BarcodeHistoryController extends Controller
             $validated = $request->validate([
                 'barcode1' => 'required|string',
                 'barcode2' => 'required|string',
-                'quantity' => 'required|integer',
+                'quantity' => 'required|integer|max:99999', // Giới hạn tối đa 5 chữ số
+            ], [
+                'quantity.max' => 'Số lượng không được lớn hơn :max.',
             ]);
             $result = ($validated['barcode1'] === $validated['barcode2'] || strpos($validated['barcode1'], $validated['barcode2']) !== false || strpos($validated['barcode2'], $validated['barcode1']) !== false) ? 'PASS' : 'FAIL';
             $history = BarcodeHistory::create([

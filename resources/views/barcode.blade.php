@@ -1,19 +1,19 @@
     @if (session('scan_result'))
-        <div id="scanResultAlert" style="position:fixed; top:30px; right:30px; z-index:9999; min-width:220px; font-size:4rem; font-weight:900; letter-spacing:6px; text-align:center; box-shadow:0 2px 16px #0003; border:3px solid #fff; color:#fff; background:@if(session('scan_result')==='PASS') #218838 @else #c82333 @endif;">
+        <div id="scanResultAlert" style="position:fixed; top:30px; right:30px; z-index:9999; width:300px; height:414px; display:flex; align-items:center; justify-content:center; font-size:7rem; font-weight:900; letter-spacing:6px; text-align:center; box-shadow:0 2px 16px #0003; border:4px solid #fff; color:#fff; background:@if(session('scan_result')==='PASS') #218838 @else #c82333 @endif; border-radius:32px;">
             {{ session('scan_result') }}
         </div>
         <script>
         setTimeout(function() {
             var el = document.getElementById('scanResultAlert');
             if (el) el.style.display = 'none';
-        }, 2000);
+        }, 5000);
         </script>
     @endif
 @extends('layouts.app')
 
 @section('content')
 <div class="container py-4">
-    <h2 class="mb-4 text-center">🔍 Barcode Scanner Pro</h2>
+    <h2 class="mb-4 text-center">🔍 Barcode Scanner</h2>
     @if ($errors->any())
         <div class="alert alert-danger">
             <ul class="mb-0">
