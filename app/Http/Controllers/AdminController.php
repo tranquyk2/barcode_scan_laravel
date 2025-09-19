@@ -26,22 +26,20 @@ class AdminController extends Controller
         if ($request->user_id) {
             $query->where('user_id', $request->user_id);
         }
-        if ($request->month) {
-            // month dạng yyyy-mm
-            $parts = explode('-', $request->month);
-            if (count($parts) === 2) {
-                $query->whereYear('created_at', $parts[0])->whereMonth('created_at', $parts[1]);
-            }
+        // Lọc theo khoảng ngày
+        if ($request->from_date && $request->to_date) {
+            $query->whereDate('created_at', '>=', $request->from_date)
+                  ->whereDate('created_at', '<=', $request->to_date);
+        } elseif ($request->from_date) {
+            $query->whereDate('created_at', '>=', $request->from_date);
+        } elseif ($request->to_date) {
+            $query->whereDate('created_at', '<=', $request->to_date);
         }
         $histories = $query->paginate(30);
         return view('admin.index', compact('users', 'histories'));
     }
 
     
-    public function create()
-    {
-        return view('admin.create_user');
-    }
 
     
     public function store(Request $request)
@@ -124,14 +122,14 @@ class AdminController extends Controller
         if ($request->user_id) {
             $query->where('user_id', $request->user_id);
         }
-        if ($request->date) {
-            $query->whereDate('created_at', $request->date);
-        }
-        if ($request->month) {
-            $parts = explode('-', $request->month);
-            if (count($parts) === 2) {
-                $query->whereYear('created_at', $parts[0])->whereMonth('created_at', $parts[1]);
-            }
+        // Lọc theo khoảng ngày khi export
+        if ($request->from_date && $request->to_date) {
+            $query->whereDate('created_at', '>=', $request->from_date)
+                  ->whereDate('created_at', '<=', $request->to_date);
+        } elseif ($request->from_date) {
+            $query->whereDate('created_at', '>=', $request->from_date);
+        } elseif ($request->to_date) {
+            $query->whereDate('created_at', '<=', $request->to_date);
         }
         $histories = $query->get();
         return Excel::download(new BarcodeHistoryExport($histories), 'barcode_histories.xlsx');

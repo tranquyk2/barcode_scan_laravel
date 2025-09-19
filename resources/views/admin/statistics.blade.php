@@ -2,13 +2,7 @@
 @section('title', 'Thống kê barcode')
 @section('content')
 <div class="container mt-4">
-    {{-- Debug dữ liệu --}}
-    {{--
-    <pre>
-        byDay: {!! json_encode($byDay) !!}
-        passFail: {!! json_encode($passFail) !!}
-    </pre>
-    --}}
+    
     <h2 class="mb-4">Thống kê barcode tháng {{ $month }}</h2>
     <form method="GET" class="mb-3">
         <label>Chọn tháng: <input type="month" name="month" value="{{ $month }}"></label>
@@ -62,13 +56,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const pfLabels = {!! json_encode(array_keys($passFail->toArray())) !!};
     const pfData = {!! json_encode(array_values($passFail->toArray())) !!};
     if (pfLabels.length > 0) {
+        // Đảm bảo PASS là màu xanh, FAIL là màu đỏ
+        const pfColors = pfLabels.map(label => label === 'PASS' ? '#28a745' : '#dc3545');
         new Chart(document.getElementById('passFailChart').getContext('2d'), {
             type: 'pie',
             data: {
                 labels: pfLabels,
                 datasets: [{
                     data: pfData,
-                    backgroundColor: ['#28a745', '#dc3545'],
+                    backgroundColor: pfColors,
                 }]
             },
             options: {responsive: true}

@@ -6,7 +6,6 @@
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
-    <a href="{{ route('admin.create_user') }}" class="btn btn-primary mb-3">Thêm user mới</a>
     <table class="table table-bordered">
         <thead>
             <tr>
@@ -51,7 +50,8 @@
             </select>
         </div>
         <div class="col-md-2 mb-2 mb-md-0">
-            <input type="month" name="month" class="form-control" value="{{ request('month') }}">
+            <input type="date" name="from_date" class="form-control mb-1" placeholder="Từ ngày" value="{{ request('from_date') }}">
+            <input type="date" name="to_date" class="form-control" placeholder="Đến ngày" value="{{ request('to_date') }}">
         </div>
         <div class="col-md-2 mb-2 mb-md-0">
             <button type="submit" class="btn btn-info w-100">Tìm kiếm</button>

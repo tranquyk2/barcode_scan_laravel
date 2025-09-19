@@ -17,7 +17,6 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['admin'])->group(function () {
         Route::get('/admin', [\App\Http\Controllers\AdminController::class, 'index'])->name('admin.index');
         Route::get('/admin/statistics', [BarcodeHistoryController::class, 'statistics'])->name('admin.statistics');
-        Route::get('/admin/create', [\App\Http\Controllers\AdminController::class, 'create'])->name('admin.create_user');
         Route::post('/admin/store', [\App\Http\Controllers\AdminController::class, 'store'])->name('admin.store_user');
         Route::get('/admin/edit/{id}', [\App\Http\Controllers\AdminController::class, 'edit'])->name('admin.edit_user');
         Route::put('/admin/update/{id}', [\App\Http\Controllers\AdminController::class, 'update'])->name('admin.update_user');
